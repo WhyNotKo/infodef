@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <vector>
 #include <unordered_map>
+#include <Windows.h>
 
 using namespace std;
 
@@ -69,8 +70,9 @@ unsigned char the_most_popular(vector<int>& text) {
 
 //поиск длины ключа из заданого интервалла с помощью индексов соответсвия 
 int key_length(vector<unsigned char>& text_vizh) {
+    //setlocale(LC_ALL, "Russian");
     cout << "Введите через пробел диапазон символов искомого ключа:" << endl;
-    int left = 1, right = 200;
+    int left = 1, right = 30;
     //cin >> left; cin >> right;
 
     int keylenght = 0;
@@ -80,14 +82,10 @@ int key_length(vector<unsigned char>& text_vizh) {
 
     for (int length = left; length <= right; length++) {
         cout << "Анализ " << length << " значного ключа" << endl;
-        // подсчитывает, сколько раз буква встречается в тексте,
-        // затем делит получившееся значение на общее количество 
-        // символов в тексте
-        // отбор в группу
-        vector<unsigned char> temporary;
 
+        vector<unsigned char> temporary;
         for (int i = 0; i < text_vizh.size(); i+= length) {
-                temporary.push_back(text_vizh[i]);
+            temporary.push_back(text_vizh[i]);
         }
 
 
@@ -111,6 +109,9 @@ int key_length(vector<unsigned char>& text_vizh) {
 // количесво групп соответсвующих количеству символов в 
 // ключе и нахождении самого популярного символа в каждой группе 
 string find_key(vector<unsigned char>& text_vizh, vector<unsigned char>& text_etalon, const int& keylength) {
+    //setlocale(LC_ALL, "Russian");
+    //SetConsoleCP(1251);
+    //SetConsoleOutputCP(1251);
     vector<int> period;
     period = get_period(text_etalon);
     unsigned char pop_char = the_most_popular(period);
@@ -138,19 +139,27 @@ string find_key(vector<unsigned char>& text_vizh, vector<unsigned char>& text_et
         unsigned char code = the_most_popular(temporary);
         key.push_back(code - pop_char);
     }
+    
+    ofstream fout("key.txt", ios::binary);
+    
     cout << "\nНайденый ключ: ";
-    for (int j = 0; j < keylength; j++)
+    for (int j = 0; j < keylength; j++) {
+
         cout << key[j];
+        fout << key[j];
+    }
+    fout.close();
+        
     cout << endl;
     return key;
 }
 
 // расшифровка текста по найденому ключу
 void vizhener(string& inpath, string& key) {
-    setlocale(LC_ALL, "Russian");
+    //setlocale(LC_ALL, "Russian");
     string output_file;
     cout << "Введите название файла для записи: " << endl;
-    cin.ignore();
+    //cin.ignore();
     getline(cin, output_file);
 
     ifstream fin(inpath, ios::binary);
@@ -179,20 +188,20 @@ void vizhener(string& inpath, string& key) {
 
 vector <unsigned char> get_text_vector(string& text)
 {
-    vector <unsigned char> finish;
-    char symbol;
+    //char symbol;
     ifstream fin(text, ios::binary);
-    while (fin.get(symbol))
+    /*while (fin.get(symbol))
     {
         finish.push_back(symbol);
-    }
+    }*/
+    vector<unsigned char> v((istreambuf_iterator<char>(fin)), istreambuf_iterator<char>());
     fin.close();
-    return finish;
+    return v;
 }
 
 void decoding()
 {
-    setlocale(LC_ALL, "Russian");
+    //setlocale(LC_ALL, "Russian");
     string input_text1, input_text2;
 
     cout << "Введите имя файла закодированого текста: " << endl;
@@ -209,7 +218,7 @@ void decoding()
 
     vector <unsigned char> text_etalon = get_text_vector(input_text2);
 
-    print_first_n(text_etalon, 15);
+    print_first_n(text_etalon, 3);
     int keylength = key_length(text_vizh);
     string key = find_key(text_vizh, text_etalon, keylength);
     vizhener(input_text1, key);
@@ -219,10 +228,11 @@ void decoding()
 
 int main()
 {
-    setlocale(LC_ALL, "Russian");
-    //SetConsoleCP(1251);
-    //SetConsoleOutputCP(1251);
+    setlocale(LC_ALL, "");
+    SetConsoleCP(1251);
+    SetConsoleOutputCP(1251);
     int menu = 0;
+
     while (true)
     {
         cout << "Меню \n1. Декодировать \n \n0. Выход \n\n ";
